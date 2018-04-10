@@ -78,7 +78,7 @@ def make_text(chains):
         counter += 1
         current_pair = new_pair
 
-    print words
+    # print words
 
     # continue_ = True
 
@@ -99,7 +99,7 @@ def make_text(chains):
 
     # your code goes here
 
-    # return " ".join(words)
+    return " ".join(words)
 
 
 input_path = "green-eggs.txt"
