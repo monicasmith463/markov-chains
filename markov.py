@@ -5,7 +5,7 @@ import random
 import sys
 
 
-def open_and_read_file(file_path1, file_path2):
+def open_and_read_file(file_path):
     """Take file path as string; return text as string.
 
     Takes a string that is a file path, opens the file, and turns
@@ -14,13 +14,12 @@ def open_and_read_file(file_path1, file_path2):
 
     # your code goes here
 
-    contents1 = open(file_path1).read()
-    contents2 = open(file_path2).read()
+    contents = open(file_path).read()
 
-    return contents1, contents2
+    return contents
 
 
-def make_chains(*args):
+def make_chains(text_string, n):
     """Take input text as string; return dictionary of Markov chains.
 
     A chain will be a key that consists of a tuple of (word1, word2)
@@ -40,62 +39,58 @@ def make_chains(*args):
 
         >>> chains[('hi', 'there')]
         ['mary', 'juanita']
-        
+      
         >>> chains[('there','juanita')]
         [None]
     """
-    text_string, n = args
-    text_string1, text_string2 = text_string
-    all_words = [text_string1.split(), text_string2.split()]
-    # print words
+
+    words = text_string.split()
+
     chains = {}
 
-    for words in all_words:
+    for i in range(len(words) - n):
 
-        for i in range(len(words) - n):
-            # current = words[i]
-            # next = words[i + 1]
+        section = words[:n]
+        next = words[n]
 
-            section = words[:n]
-            next = words[n]
+        gram = tuple(section)
+        chains.setdefault(gram, []).append(next)
+        words = words[1:]
 
-            pair = tuple(section)
-            chains.setdefault(pair, []).append(next)
-            words = words[1:]
-    # print chains
     return chains
 
 
 def make_text(chains, n):
     """Return text from chains."""
     words = []
+    tweet = ''
     current_gram = random.choice(chains.keys())
 
     while current_gram[0].lower() == current_gram[0]:
         current_gram = random.choice(chains.keys())
-    
+
     words.extend(current_gram)
-    while current_gram in chains:
+    while (current_gram in chains) and (len(tweet) < 251):
         next_word = random.choice(chains[current_gram])
         words.append(next_word)
+        tweet += next_word + ' '
         current_gram = tuple(words[-n:])
 
-    # print words
-
-    return " ".join(words)
+    return tweet
 
 
-MY_FILE_1, MY_FILE_2 = sys.argv[1:]
-input_path = MY_FILE_1, MY_FILE_2
+NUM = int(sys.argv[1])
+INPUT_FILES = sys.argv[2:]
+input_text = ''
 
 # Open the file and turn it into one long string
-input_text = open_and_read_file(MY_FILE_1, MY_FILE_2)
-# print input_text
+for file_ in INPUT_FILES:
+    input_text += open_and_read_file(file_)
 
 # Get a Markov chain
-chains = make_chains(input_text, 1)
+chains = make_chains(input_text, NUM)
 
 # Produce random text
-random_text = make_text(chains, 1)
+random_text = make_text(chains, NUM)
 
 print random_text
