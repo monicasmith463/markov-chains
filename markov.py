@@ -2,9 +2,10 @@
 
 # from random import choice
 import random
+import sys
 
 
-def open_and_read_file(file_path):
+def open_and_read_file(file_path1, file_path2):
     """Take file path as string; return text as string.
 
     Takes a string that is a file path, opens the file, and turns
@@ -13,12 +14,13 @@ def open_and_read_file(file_path):
 
     # your code goes here
 
-    contents = open(file_path).read()
+    contents1 = open(file_path1).read()
+    contents2 = open(file_path2).read()
 
-    return contents
+    return contents1, contents2
 
 
-def make_chains(text_string):
+def make_chains(*args):
     """Take input text as string; return dictionary of Markov chains.
 
     A chain will be a key that consists of a tuple of (word1, word2)
@@ -42,75 +44,58 @@ def make_chains(text_string):
         >>> chains[('there','juanita')]
         [None]
     """
-    words = text_string.split()
+    text_string, n = args
+    text_string1, text_string2 = text_string
+    all_words = [text_string1.split(), text_string2.split()]
+    # print words
     chains = {}
 
-    for i in range(len(words) - 2):
-        current = words[i]
-        next = words[i + 1]
-        next_next = words[i + 2]
+    for words in all_words:
 
-        pair = tuple([current, next])
-        chains.setdefault(pair, []).append(next_next)
+        for i in range(len(words) - n):
+            # current = words[i]
+            # next = words[i + 1]
 
+            section = words[:n]
+            next = words[n]
+
+            pair = tuple(section)
+            chains.setdefault(pair, []).append(next)
+            words = words[1:]
+    # print chains
     return chains
 
 
-def make_text(chains):
+def make_text(chains, n):
     """Return text from chains."""
     words = []
-    counter = 0
+    current_gram = random.choice(chains.keys())
 
-    initial_pair = random.choice(chains.keys())
-    initial_word = initial_pair[1]
-    # words.append(current_word)
-    next_word = random.choice(chains[initial_pair])
-    new_pair = tuple([initial_word, next_word])
-    current_pair = new_pair
-
-    while (current_pair in chains) and (counter < 22):
-
-        current_word = current_pair[1]
-        words.append(current_word)
-        next_word = random.choice(chains[current_pair])
-        new_pair = tuple([current_word, next_word])
-
-        counter += 1
-        current_pair = new_pair
+    while current_gram[0].lower() == current_gram[0]:
+        current_gram = random.choice(chains.keys())
+    
+    words.extend(current_gram)
+    while current_gram in chains:
+        next_word = random.choice(chains[current_gram])
+        words.append(next_word)
+        current_gram = tuple(words[-n:])
 
     # print words
-
-    # continue_ = True
-
-    # while continue_:
-
-    #     current_word = current_pair[1]
-    #     print "current word: ", current_word
-    #     words.append(current_word)
-    #     print "words: ", words
-    #     next_word = random.choice(chains[current_pair])
-    #     print "next word: ", next_word
-    #     new_pair = tuple([current_word, next_word])
-    #     print "next pair ", new_pair
-
-
-
-
-
-    # your code goes here
 
     return " ".join(words)
 
 
-input_path = "green-eggs.txt"
+MY_FILE_1, MY_FILE_2 = sys.argv[1:]
+input_path = MY_FILE_1, MY_FILE_2
 
 # Open the file and turn it into one long string
-input_text = open_and_read_file(input_path)
+input_text = open_and_read_file(MY_FILE_1, MY_FILE_2)
+# print input_text
 
 # Get a Markov chain
-chains = make_chains(input_text)
+chains = make_chains(input_text, 1)
 
 # Produce random text
-random_text = make_text(chains)
+random_text = make_text(chains, 1)
 
 print random_text
